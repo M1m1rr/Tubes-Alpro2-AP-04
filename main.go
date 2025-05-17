@@ -2,20 +2,24 @@ package main
 
 import "fmt"
 
-const NMAX int = 999
+const NMAX = 99
 
-type tabDat [NMAX]int
+type Sampah struct {
+	Jenis     string
+	Jumlah    int
+	DaurUlang string
+}
 
-//Fungsi utama program
+type User struct {
+	Username string
+	Password string
+	Nama     string
+	Posisi   string
+}
+
+var dataSampah [NMAX]Sampah
+
+// Fungsi utama program
 func main() {
-	
-}
-
-//Fungsi menginput data
-func inputData() {
-
-}
-
-func login() {
-
+	fmt.Scan()
 }
