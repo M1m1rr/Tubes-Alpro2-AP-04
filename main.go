@@ -2,7 +2,7 @@ package main
 
 import "fmt"
 
-const NMAX = 99
+const NMAX = 999
 
 type Sampah struct {
 	ID        string
@@ -18,13 +18,112 @@ type User struct {
 	Posisi   string
 }
 
-var dataSampah [NMAX]Sampah
+type dataSampah [NMAX]Sampah
+
 var data dataSampah
 var nData int
 
 // Fungsi utama program
 func main() {
-	fmt.Scan()
+	var u User
+	login(&u)
+	var pilihan, idx int
+	var end bool = false
+	var isAsc bool
+	var id string
+	var asc string
+
+	for end != true {
+		//Fungsi menampilkan menu
+		menu()
+		fmt.Print("Pilihan: ")
+		fmt.Scan(&pilihan)
+		switch pilihan {
+		case 1: // Tambah data jika array tidak penuh
+			if nData >= NMAX {
+				fmt.Print("array sudah penuh")
+			} else {
+				tambahData(&data, &nData)
+			}
+		case 2: // Ubah data jika array tidak kosong
+			if nData == 0 {
+				fmt.Println("Array kosong, tambahkan data terlebih dahulu.")
+			} else {
+				ubahData(&data, &nData)
+			}
+		case 3: // Ubah data jika array tidak kosong
+			if nData == 0 {
+				fmt.Println("Array kosong, tambahkan data terlebih dahulu.")
+			} else {
+				hapusData(&data, &nData)
+			}
+		case 4: // Ubah data jika array tidak kosong
+			if nData == 0 {
+				fmt.Println("Array kosong, tambahkan data terlebih dahulu.")
+			} else {
+				fmt.Print("Masukkan ID sampah: ")
+				fmt.Scan(&id)
+				idx = binarySearch(data, nData, id)
+				if idx != -1 {
+					fmt.Printf("%s %d %s\n", data[idx].Jenis, data[idx].Jumlah, data[idx].DaurUlang)
+					fmt.Println("Data ditemukan.")
+				} else {
+					fmt.Println("Data tidak ditemukan.")
+				}
+			}
+
+		case 5: // Sort array jika tidak kosong
+			if nData == 0 {
+				fmt.Println("Array kosong, tambahkan data terlebih dahulu.")
+			} else {
+				var sortType, sortMethod int
+				fmt.Println("Pilih Jenis Sort Berdasarkan")
+				fmt.Println("1. Jumlah\n2. Jenis")
+				fmt.Scan(&sortType)
+				fmt.Println("Pilih Metode Sort")
+				fmt.Println("1. Selection\n2. Insertion")
+				fmt.Scan(&sortMethod)
+				fmt.Println("1. Ascending\n2. Descending")
+				fmt.Scan(&asc)
+				isAsc = asc == "1"
+				if sortType == 1 && sortMethod == 1 {
+					if isAsc {
+						selectionSortJumlahAsc(&data, nData)
+					} else {
+						selectionSortJumlahDesc(&data, nData)
+					}
+				} else if sortType == 1 && sortMethod == 2 {
+					if isAsc {
+						insertionSortJumlahAsc(&data, nData)
+					} else {
+						insertionSortJumlahDesc(&data, nData)
+					}
+				} else if sortType == 2 && sortMethod == 1 {
+					if isAsc {
+						selectionSortJenisAsc(&data, nData)
+					} else {
+						selectionSortJenisDesc(&data, nData)
+					}
+				} else if sortType == 2 && sortMethod == 2 {
+					if isAsc {
+						insertionSortJenisAsc(&data, nData)
+					} else {
+						insertionSortJenisDesc(&data, nData)
+					}
+				}
+				fmt.Println("Data telah diurutkan.")
+			}
+
+		case 6: // Menampilkan statistik kontribusi sampah dari user
+			tampilStatistik(data, nData, u)
+		case 7: // Mencetak array
+			cetakData(data, nData)
+		case 0: // end menghentikan loop inputan piranti di menu
+			end = true
+		default:
+			fmt.Println("Input tidak valid.")
+		}
+	}
 }
 
 func sequentialSearch(T dataSampah, n int, id string) int {
@@ -184,31 +283,13 @@ func tambahData(T *dataSampah, n *int) {
 	fmt.Println("Data berhasil ditambahkan.")
 }
 
-func binarySearch(T dataSampah, n int, id string) int {
-	var left, right, mid int
-	left = 0
-	right = n - 1
-
-	for left <= right {
-		mid = (left + right) / 2
-		if T[mid].ID == id {
-			return mid
-		} else if T[mid].ID < id {
-			left = mid + 1
-		} else {
-			right = mid - 1
-		}
-	}
-	return -1
-}
-
 func hapusData(T *dataSampah, n *int) {
 	var id string
 	var i, idx int
 	var val int
 	fmt.Print("Masukkan ID sampah yang akan dihapus: ")
 	fmt.Scan(&id)
-	val = sequentialSearch(*T, *n, id)
+	val = binarySearch(*T, *n, id)
 
 	if val != -1 {
 		idx = val
@@ -221,81 +302,6 @@ func hapusData(T *dataSampah, n *int) {
 		fmt.Println("Data berhasil dihapus.")
 	} else {
 		fmt.Println("Data tidak ditemukan.")
-	}
-}
-
-func selectionSortJumlahAsc(T *dataSampah, n int) {
-	var i, j, idx int
-	var temp Sampah
-	for i = 0; i < n-1; i++ {
-		idx = i
-		j = i + 1
-		for j < n {
-			if T[j].Jumlah < T[idx].Jumlah {
-				idx = j
-			}
-			j++
-		}
-		temp = T[i]
-		T[i] = T[idx]
-		T[idx] = temp
-	}
-}
-
-// Prosedur selection sort jumlah menurun
-func selectionSortJumlahDesc(T *dataSampah, n int) {
-	var i, j, idx int
-	var temp Sampah
-	for i = 0; i < n-1; i++ {
-		idx = i
-		j = i + 1
-		for j < n {
-			if T[j].Jumlah > T[idx].Jumlah {
-				idx = j
-			}
-			j++
-		}
-		temp = T[i]
-		T[i] = T[idx]
-		T[idx] = temp
-	}
-}
-
-// Prosedur selection sort jenis menaik
-func selectionSortJenisAsc(T *dataSampah, n int) {
-	var i, j, idx int
-	var temp Sampah
-	for i = 0; i < n-1; i++ {
-		idx = i
-		j = i + 1
-		for j < n {
-			if T[j].Jenis < T[idx].Jenis {
-				idx = j
-			}
-			j++
-		}
-		temp = T[i]
-		T[i] = T[idx]
-		T[idx] = temp
-	}
-}
-
-// Prosedur selection sort jenis menurun
-func selectionSortJenisDesc(T *dataSampah, n int) {
-	var i, j, idx int
-	var temp Sampah
-	for i = 0; i < n-1; i++ {
-		idx = i
-		j = i + 1
-		for j < n {
-			if T[j].Jenis > T[idx].Jenis {
-				idx = j
-			}
-			j++
-		}
-		temp = T[i]
-		T[i] = T[idx]
-		T[idx] = temp
 	}
 }
 
@@ -395,4 +401,37 @@ func menu() {
 	fmt.Println("7. Cetak Data Daur Ulang")
 	fmt.Println("0. Keluar")
 	fmt.Println("========================================")
+}
+
+func login(u *User) {
+	fmt.Println("=======SELAMAT DATANG DI ECOCYCLE=======")
+	fmt.Println("================ LOGIN =================")
+	fmt.Print("Username : ")
+	fmt.Scan(&u.Username)
+	fmt.Print("Password : ")
+	fmt.Scan(&u.Password)
+	fmt.Print("Nama     : ")
+	fmt.Scan(&u.Nama)
+	fmt.Print("Posisi   : ")
+	fmt.Scan(&u.Posisi)
+	fmt.Println("Login berhasil.\n")
+	fmt.Println("========================================")
+}
+
+func binarySearch(T dataSampah, n int, id string) int {
+	var left, right, mid int
+	left = 0
+	right = n - 1
+
+	for left <= right {
+		mid = (left + right) / 2
+		if T[mid].ID == id {
+			return mid
+		} else if T[mid].ID < id {
+			left = mid + 1
+		} else {
+			right = mid - 1
+		}
+	}
+	return -1
 }
